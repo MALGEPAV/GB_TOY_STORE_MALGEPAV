@@ -1,4 +1,6 @@
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 
 public class ToyStore {
@@ -48,23 +50,32 @@ public class ToyStore {
     }
 
     public void showPrizes() {
-        System.out.println("ПРИЗЫ:");
-        while (!prizeToysQueue.isEmpty()) {
-            System.out.println(prizeToysQueue.poll());
+        try (PrintWriter pw = new PrintWriter("PrizeToys.txt")) {
+            pw.println("ПРИЗЫ:");
+            while (!prizeToysQueue.isEmpty()) {
+                pw.println(prizeToysQueue.poll());
+            }
+        }
+        catch (IOException e){
+            System.out.println("I/O error: "+e);
         }
     }
 
     public void showStatistics() {
-        System.out.println("Статистика:");
-        int totalPrizes = 0;
-        for (Integer toyCount :
-                statistics.values()) {
-            totalPrizes += toyCount;
+        try(PrintWriter pw = new PrintWriter("Stats.txt") ){
+            int totalPrizes = 0;
+            for (Integer toyCount :
+                    statistics.values()) {
+                totalPrizes += toyCount;
+            }
+            pw.println("СТАТИСТИКА:");
+            for (Map.Entry<String, Integer> entry :
+                    statistics.entrySet()) {
+                pw.println(entry.getKey() + ' ' + Math.round((float) entry.getValue() / totalPrizes * 100) + '%');
+            }
         }
-
-        for (Map.Entry<String, Integer> entry:
-        statistics.entrySet()){
-            System.out.println(entry.getKey()+' '+Math.round((float)entry.getValue()/totalPrizes*100)+'%');
+        catch (IOException e){
+            System.out.println("I/O error: "+e);
         }
     }
 
