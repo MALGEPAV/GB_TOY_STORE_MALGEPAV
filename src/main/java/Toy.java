@@ -26,8 +26,16 @@ public class Toy {
         return threshold;
     }
 
+    public void decrementCount(){
+        count--;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
     @Override
     public String toString() {
-        return "id: " + id + ", Название: " + name;
+        return id +' '+name;
     }
 }

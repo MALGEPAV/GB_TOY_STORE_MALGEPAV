@@ -1,55 +1,88 @@
+import java.io.FileOutputStream;
 import java.util.*;
 
 public class ToyStore {
-    public List<Toy> toysInStore;
-    private Queue<String> prizeToysQueue  = new ArrayDeque<>();;
-    private final int prizeToysQueueLength = 10;
+    //private List<Toy> toysInStore;
+    private Map<String, Toy> toysInStore;
+    private Map<String, Integer> statistics;
+    private Queue<String> prizeToysQueue = new ArrayDeque<>();
 
     public void fillStore() {
-        toysInStore = new ArrayList<>();
-        toysInStore.add(new Toy("1", "Кукла Маша", 6, 10));
-        toysInStore.add(new Toy("2", "Спиннер", 4, 8));
-        //toysInStore.add(new Toy("3", "Симпл Димпл", 3, 6));
-        //toysInStore.add(new Toy("4", "Турбо Фаллос", 2, 4));
-        //toysInStore.add(new Toy("4", "Турбо Фаллос", 1, 2));
+        toysInStore = new HashMap<>();
+        toysInStore.put("1", new Toy("1", "Кукла Маша", 4, 100000));
+        toysInStore.put("2", new Toy("2", "Спиннер", 3, 100000));
+        toysInStore.put("3", new Toy("3", "Симпл Димпл", 2, 100000));
+        toysInStore.put("4", new Toy("4", "Турбо Фаллос", 1, 100000));
     }
 
-    public void setThresholds() {
-        int totalWeight = 0;
-        for (Toy toy :
-                toysInStore) {
-            totalWeight += toy.getWeight();
-        }
+    private void setThresholds() {
+        float totalWeight = (float) getTotalWeight();
         float currentThreshold = 0.0f;
-//        ListIterator<Toy> toysIterator = toysInStore.listIterator();
-//        while (toysIterator.hasNext()) {
-//            Toy currentToy = toysIterator.next();
-//            currentToy.setThreshold(currentThreshold += ((float)currentToy.getWeight()) / (float)totalWeight);
-//        }
         for (Toy toy :
-                toysInStore) {
-            currentThreshold += (float) toy.getWeight() / (float) totalWeight;
+                toysInStore.values()) {
+            currentThreshold += (float) toy.getWeight() / totalWeight;
             toy.setThreshold(currentThreshold);
         }
     }
-    public void fillPrizeToysQueue(){
+
+    public void fillPrizeToysQueue(int length) {
+        statistics = new HashMap<>();
+        setThresholds();
         Random rand = new Random();
-        for (int i = 0; i < prizeToysQueueLength; i++) {
+        for (int i = 0; i < length; i++) {
             float r = rand.nextFloat();
             for (Toy toy :
-                    toysInStore) {
-                if (r<=toy.getThreshold()) {
+                    toysInStore.values()) {
+                if (r <= toy.getThreshold()) {
                     prizeToysQueue.offer(toy.toString());
+                    toy.decrementCount();
+                    if (toy.getCount() == 0) {
+                        setThresholds();
+                    }
+                    statistics.computeIfPresent(toy.toString(), (k, v) -> v += 1);
+                    statistics.putIfAbsent(toy.toString(), 1);
                     break;
                 }
             }
         }
     }
-    public void showPrizes(){
+
+    public void showPrizes() {
         System.out.println("ПРИЗЫ:");
-        while (!prizeToysQueue.isEmpty()){
+        while (!prizeToysQueue.isEmpty()) {
             System.out.println(prizeToysQueue.poll());
         }
     }
 
+    public void showStatistics() {
+        System.out.println("Статистика:");
+        int totalPrizes = 0;
+        for (Integer toyCount :
+                statistics.values()) {
+            totalPrizes += toyCount;
+        }
+
+        for (Map.Entry<String, Integer> entry:
+        statistics.entrySet()){
+            System.out.println(entry.getKey()+' '+Math.round((float)entry.getValue()/totalPrizes*100)+'%');
+        }
+    }
+
+    private int getTotalWeight() {
+        int totalWeight = 0;
+        for (Toy toy :
+                toysInStore.values()) {
+            totalWeight += toy.getWeight();
+        }
+        return totalWeight;
+    }
+
+    public int getTotalCount() {
+        int totalCount = 0;
+        for (Toy toy :
+                toysInStore.values()) {
+            totalCount += toy.getCount();
+        }
+        return totalCount;
+    }
 }
