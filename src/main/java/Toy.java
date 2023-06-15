@@ -36,6 +36,6 @@ public class Toy {
 
     @Override
     public String toString() {
-        return id +' '+name;
+        return "id: "+id +" название: "+name;
     }
 }
