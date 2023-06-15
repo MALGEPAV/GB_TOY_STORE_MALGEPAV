@@ -65,6 +65,7 @@ public class ToyStore {
     }
 
     public void fillPrizeToysQueue() {
+        statistics.clear();
         if (storeIsEmpty()) return;
         Scanner amountScanner = new Scanner(System.in);
         System.out.print("Сколько игрушек разыграть?: ");
